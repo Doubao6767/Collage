@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Text Assembly</title>
+  <!-- 引入 p5.js 库 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <!-- 引入 Google Fonts 艺术字体库 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-image: url('https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=1500&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      width: 100vw;
+      min-height: 100vh;
+      background: transparent;
+      overflow: hidden;
+    }
+
+    .left-panel {
+      flex: 1;
+      padding: 40px;
+      user-select: text;
+      min-height: 100vh;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(2px);
+      border-right: 1.5px solid rgba(203, 213, 225, 0.6);
+    }
+
+    .left-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1.5px solid rgba(203, 213, 225, 0.6);
+    }
+
+    .left-header h3 {
+      font-size: 15px;
+      color: #475569;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btn {
+      background-color: #6366f1;
+      color: white;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .action-btn:hover {
+      background-color: #4f46e5;
+    }
+
+    #reading-view p {
+      font-size: 18px;
+      line-height: 1.9;
+      color: #1e293b;
+      white-space: pre-line;
+      text-indent: 2em;
+    }
+
+    .selection-view {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(203, 213, 225, 0.8);
+      padding: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .card:hover {
+      border-color: #6366f1;
+      background: rgba(238, 242, 255, 0.8);
+      transform: translateY(-1px);
+    }
+
+    .card h4 {
+      font-size: 16px;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: #334155;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    #archive-detail-view {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    #archive-canvas-container {
+      width: 100%;
+      height: 1150px;
+      position: relative;
+      background: transparent;
+      overflow: hidden;
+    }
+
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      min-height: 1150px;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- 左侧面板 -->
+    <div class="left-panel">
+      <div class="left-header">
+        <h3 id="panel-title">Reading Area</h3>
+        <div class="btn-group">
+          <button id="switch-article-btn" class="action-btn">Switch Article</button>
+          <button id="view-archives-btn" class="action-btn">View Archives</button>
+        </div>
+      </div>
+
+      <!-- 1. 阅读视图 -->
+      <div id="reading-view">
+        <p id="article-text" style="font-family: 'Special Elite', monospace;">
+          The campaign brought honours and promotion to many, but for me it had nothing but misfortune and disaster. I was removed from my brigade and attached to the Berkshires, with whom I served at the fatal battle of Maiwand. There I was struck on the shoulder by a Jezail bullet, which shattered the bone and grazed the subclavian artery. I should have fallen into the hands of the murderous Ghazis had it not been for the devotion and courage shown by Murray, my orderly, who threw me across a packhorse, and succeeded in bringing me safely to the British lines.Worn with pain, and weak from the prolonged hardships which I had undergone, I was removed, with a great train of wounded sufferers, to the base hospital at Peshawar. Here I rallied, and had already improved so far as to be able to walk about the wards, and even to bask a little upon the veranda, when I was struck down by enteric fever, that curse of our Indian possessions. For months my life was despaired of, and when at last I came to myself and became convalescent, I was so weak and emaciated that a medical board determined that not a day should be lost in sending me back to England. I was despatched, accordingly, in the troopship Orontes, and landed a month later on Portsmouth jetty, with my health irretrievably ruined, but with permission from a paternal government to spend the next nine months in attempting to improve it.
+        </p>
+      </div>
+
+      <!-- 2. 文章选择视图 -->
+      <div id="article-selection-view" class="selection-view">
+        <div class="article-card card" data-index="0">
+          <h4>Sherlock Holmes - Excerpts</h4>
+          <p style="font-family: 'Special Elite', monospace;">The campaign brought honours and promotion to many, but for me it had nothing but misfortune and disaster...</p>
+        </div>
+        <div class="article-card card" data-index="1">
+          <h4>The Tokyo Zodiac Murders - Excerpts</h4>
+          <p style="font-family: 'Playfair Display', serif;">I am not writing this to be published. However, as it is taking form, I have to consider the possibility that someone will discover it...</p>
+        </div>
+        <div class="article-card card" data-index="2">
+          <h4>Giovanni's Room - Excerpts</h4>
+          <p style="font-family: 'Courier Prime', monospace;">A red-faced woman, burdened with fruit, shouted-to Giovanni, the driver, to the world a particularly vivid cochonnerie...</p>
+        </div>
+        <div class="article-card card" data-index="3">
+          <h4>Read me</h4>
+          <p style="font-family: 'Courier Prime', monospace;"># Name of the Experiment Collage Create poetry through collage...</p>
+        </div>
+      </div>
+
+      <!-- 3. 存档列表视图 -->
+      <div id="archive-list-view" class="selection-view"></div>
+
+      <!-- 4. 存档只读还原画布视图 -->
+      <div id="archive-detail-view">
+        <div id="archive-canvas-container"></div>
+      </div>
+    </div>
+
+    <!-- 右侧 p5 画布挂载点 -->
+    <div id="canvas-container"></div>
+  </div>
+
+  <!-- 内嵌完整的 p5.js 交互与渲染逻辑 -->
+  <script>
+    const articles = [
+      {
+        title: "Sherlock Holmes - Excerpts",
+        text: "  The campaign brought honours and promotion to many, but for me it had nothing but misfortune and disaster. I was removed from my brigade and attached to the Berkshires, with whom I served at the fatal battle of Maiwand. There I was struck on the shoulder by a Jezail bullet, which shattered the bone and grazed the subclavian artery. I should have fallen into the hands of the murderous Ghazis had it not been for the devotion and courage shown by Murray, my orderly, who threw me across a packhorse, and succeeded in bringing me safely to the British lines.Worn with pain, and weak from the prolonged hardships which I had undergone, I was removed, with a great train of wounded sufferers, to the base hospital at Peshawar. Here I rallied, and had already improved so far as to be able to walk about the wards, and even to bask a little upon the veranda, when I was struck down by enteric fever, that curse of our Indian possessions. For months my life was despaired of, and when at last I came to myself and became convalescent, I was so weak and emaciated that a medical board determined that not a day should be lost in sending me back to England. I was despatched, accordingly, in the troopship Orontes, and landed a month later on Portsmouth jetty, with my health irretrievably ruined, but with permission from a paternal government to spend the next nine months in attempting to improve it.",
+        cssFont: "'Special Elite', monospace",
+        p5Font: "Special Elite"
+      },
+      {
+        title: "The Tokyo Zodiac Murders - Excerpts",
+        text: "I am not writing this to be published. However, as it is taking form, I have to consider the possibility that someone will discover it. Therefore, let me start by saying that although this document constitutes my last will and testament, it also happens to be an accounting of my fascination with women. If my work should be found more interesting after my death, such as Van Gogh’s was after his, I hope that those who read this document will understand my final wishes and that my legacy will be extended to generations to come.       \n     ————Heikichi Umezawa                                                      Friday, 21st February 1936               \n  I have been possessed by a devil, an evil spirit with thoughts of its own. It plays vicious tricks on me. I am in agony. Under the devil’s control, my body is a mere puppet. One night, a huge clam, as big as a calf, appeared under my desk. It extended its foot, slid across my room, and left a trail of mucus on the wooden floor. Another evening, I noticed geckos hiding in my room, their bodies in the shadow of a lattice. I tried to kill them, but found that I was powerless.  One early spring morning, I awoke chilled to the bone. The devil was trying to freeze me to death! In time, my youth left me, and so did my physical strength, allowing the devil to possess me even more easily. Celsus said: “To exorcize the demon from a person possessed, you should starve him. Feed him but bread and water, and then beat him senseless with a club.” In the Gospel of St Mark there is corroboration of this method: “Master,” a parent says to Jesus, “I bring my child possessed by a demon to you. My child occasionally frothed at the mouth and clenched his teeth, and now he is emaciated.” During my own childhood, I realized I was possessed. In order to exorcize the devil in me, I tried everything I could think of. I found this bit of information in another book: “In the Middle Ages, people burned strong incense in front of someone possessed. When the patient fainted, they yanked out some of his hair, put it into a bottle, and capped it. It was believed that the demon could thus be trapped and the patient allowed to recover his senses.” I begged my friends to try this on me, but they scoffed and called me deranged. I tried to pull out my hair myself, but I fainted from the pain. My friends, watching, thought me either crazy or epileptic. You cannot imagine what I have been through. I have lost all sense of pride; I have been so overwhelmed that I feel a mere transient in this world. With my person, the devil took the shape of a ball, which must have been akin to the “hysteric ball” of the Middle Ages. Usually it stayed in my lower abdomen. Sometimes it crawled up through the stomach and oesophagus, and then into my throat. This always happened on a Friday. Just as St Cyril described it, my tongue is taut with tension, my lips tremble, and my mouth produces foam. The demon explodes with laughter, and nails are driven into my body. Maggots, snakes and toads emerge before me, one after another; dead men and animals strut around my room; wet reptiles gnaw at my nose, ears and lips. The odour is so incredible it sizzles! Now I understand why reptiles are used in the ceremonies of witchcraft. Recently, it is rare if they attack; but the thought of them never leaves me. My scars, which are sacred, bleed each Friday. I have begun to indulge in religious exaltations as if I were Catharine Cialina in the seventeenth century or Amelia Bicchieri of Vercelli in the thirteenth century. The devil is relentless, urging me constantly to obey him. To achieve this end, he has created an almighty woman, a goddess, a Helen of Troy—or perhaps a witch. She appears nightly in my dreams, where all manner of black magic can reside. I ingest medicinal plants, as Plinius prescribed; before I go to bed I take the ashes of lizards, mix them with a fine wine, and apply the concoction to my nipples and over my heart… but to no avail. While being manipulated like a puppet, I dream of the perfect woman. I am mesmerized by her beauty, her psychic power, her vigour. I know I would be incapable of painting her on a canvas. Would I be able to bear seeing her with my own eyes? My desire is so overwhelming, it is slowly killing me. I would gladly give up my wretched life if this perfect woman were to become a reality.",
+        cssFont: "'Playfair Display', serif",
+        p5Font: "Playfair Display"
+      },
+      {
+        title: "Giovanni's Room - Excerpts",
+        text: `A red-faced woman, burdened with fruit, shouted-to Giovanni, the driver, to the world a particularly vivid cochonnerie, to which the driver and Giovanni, at once, at the top of their lungs, responded, though the fruit lady had already passed beyond our sight and perhaps no longer even remembered her precisely obscene conjectures.\nWe crawled along, for no one had yet told the driver where to stop, and Giovanni and the driver; who had, it appeared, immediately upon entering Les Halles, been transformed into brothers, exchanged speculations, unflattering in the extreme, concerning the hygiene; language, private parts, and habits, of the citizens of Paris. (acques and Guillaume were exchanging speculations, unspeakably less good-natured, concerning every passing male.) The pavements were slick with leavings, mainly cast-off, rotten leaves, flowers, fruit, and vegetables which had met with disaster natural and slow, or abrupt. And the walls and corners were combed with pissoirs, dull-burning, make-shift braziers, cafes, restaurants, and smoky yellow bistros of these last, some so small that they were little more than diamond-shaped, enclosed corners holding bottles and a zinc-covered counter. At all these points, men, young, old, middle-aged, powerful, powerful even in the various fashions in which they had met, or were meeting, their various ruin; and women, more than making up in shrewdness and patience, in an ability to count and weigh-and shout-whatever they might lack in muscle; though they did not, really, seem to lack much. Nothing here reminded me of home, though Giovanni recognized, revelled in it all. "I know a place," he told the driver, "très bon marche"- and told the driver where it was. It developed that it was one of the driver's favorite rendezvous.
+"Where is this place?" asked Jacques, petulantly. "I thought we were going to" — and he named another place.
+"You are joking," said Giovanni, with contempt. "That place is very bad and very expensive, it is only for tourists. We are not tour-ists," and he added, to me, "When I first came to Paris I worked in Les Halles-a long time, too. Nom de Dieu, quel boulot! I pray always never to do that again." And he regarded the streets through which we passed with a sadness which was not less real for being a little theatrical and self-mocking.
+Guillaume said, from his corner of the cab: "Tell him who rescued you."
+"Ah, yes," said Giovanni, "behold my savior, my patron." He was silent a moment. Then: "You do not regret it, do you? I have not done you any harm? You are pleased with my work?"
+"Mais oui, " said Guillaume.
+Giovanni sighed. "Bien sûr." He looked out of the window again, again whistling. We came to a corner remarkably clear. The taxi stopped.
+"Ici," said the driver.
+"Ici," Giovanni echoed.
+I reached for my wallet but Giovanni sharply caught my hand, conveying to me with an angry flick of his eyelash the intelligence that the least these dirty old men could do was pay. He opened the door and stepped out into the street. Guillaume had not reached for his wallet and Jacques paid for the cab.
+"Ugh," said Guillaume, staring at the door of the cafe before which we stood, "I am sure this place is infested with vermin. Do you want to poison us?"
+"It's not the outside you're going to eat," said Giovanni. "You are in much more danger of being poisoned in those dreadful, chic places you always go to, where they always have the face clean, mais, mon Dieu, les fesses?" He grinned. " Fais-moi confiance. Why would I want to poison you? Then I would have no job and I have only just found out that I want to live."`,
+        cssFont: "'Courier Prime', monospace",
+        p5Font: "Courier Prime"
+      },
+      {
+        title: "Read me",
+        text: `# Name of the Experiment
+Collage
+
+\n# The Premise
+Create poetry through collage. Any piece of text can be cut and reassembled to make a collage. Create a collage that will bring surprises.
+
+\n# The operation
+People can select the articles provided on the webpage. They can either choose some words by themselves or randomly pick some words. Then, users can arrange these words themselves and create a new poem by combining them in a collage manner.
+
+\n# What the language is doing
+Input the words to generate the entries, and then re-arrange and combine the entries.
+
+\n# The accident
+
+\n# What remains unfinished
+
+
+\n# Sources or influences
+I once made some paper collage poems, which were quite fun. So I wanted to give it a try and create something that could serve as an interesting way to involve the audience in the creation process for an interactive experience.`,
+        cssFont: "'Courier Prime', monospace",
+        p5Font: "Courier Prime"
+      }
+    ];
+
+    let currentArticleIndex = 0;
+    let inputField, addBtn, saveBtn, resetBtn;
+    let wordTags = [];
+    // 💡 配置为 18 条横线
+    let lineSlots = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]; 
+    let currentLine = 0;              
+    let currentFontName = "Special Elite";
+
+    function setup() {
+      // 💡 画布高度设为 1150 像素，完美承载 18 条横线
+      let cnv = createCanvas(windowWidth / 2, 1150);
+      cnv.parent('canvas-container');
+      
+      inputField = createInput('');
+      inputField.parent('canvas-container');
+      inputField.position(24, 24);
+      inputField.size(180, 30);
+      inputField.attribute('placeholder', ' Paste words here');
+      
+      addBtn = createButton('CUT OFF');
+      addBtn.parent('canvas-container');
+      addBtn.position(214, 24);
+      addBtn.size(75, 34);
+      addBtn.mousePressed(addWordTag);
+
+      saveBtn = createButton('SAVE');
+      saveBtn.parent('canvas-container');
+      saveBtn.position(299, 24);
+      saveBtn.size(60, 34);
+      saveBtn.mousePressed(saveComposition);
+
+      resetBtn = createButton('RESET');
+      resetBtn.parent('canvas-container');
+      resetBtn.position(369, 24);
+      resetBtn.size(65, 34);
+      resetBtn.mousePressed(resetComposition);
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth / 2, 1150);
+    }
+
+    window.setArticleFont = function(fontName) {
+      currentFontName = fontName;
+    };
+
+    function draw() {
+      clear();
+      
+      fill(70, 80, 95);
+      textSize(13);
+      text("( click words to insert into the line below, click a line for a new line ) :", 24, 80);
+      
+      let tagX = 24;
+      let tagY = 96;
+      textSize(15);
+      
+      for (let i = 0; i < wordTags.length; i++) {
+        let tag = wordTags[i];
+        
+        if (tag.inLineIndex === -1) {
+          textFont(tag.fontName || currentFontName);
+          let textW = textWidth(tag.text);
+          let w = textW + 24;
+          let h = 30;
+          
+          tag.x = tagX;
+          tag.y = tagY;
+          tag.w = w;
+          tag.h = h;
+          
+          drawSmoothPaper(tagX, tagY, w, h, tag);
+          
+          noStroke();
+          fill(30, 41, 59);
+          textSize(15);
+          textFont(tag.fontName || currentFontName);
+          text(tag.text, tagX + 12, tagY + 20);
+          
+          tagX += w + 12;
+          if (tagX > width - 40) {
+            tagX = 24;
+            tagY += 38;
+          }
+        }
+      }
+      
+      let startLineY = 280;
+      
+      for (let i = 0; i < lineSlots.length; i++) {
+        let ly = startLineY + i * 45; 
+        
+        if (i === currentLine) {
+          stroke(90, 100, 115);   
+          strokeWeight(1.2);       
+        } else {
+          stroke(155, 165, 178);   
+          strokeWeight(1.0);       
+        }
+        
+        line(24, ly, width - 24, ly);
+
+        let currentX = 24;
+        for (let j = 0; j < lineSlots[i].length; j++) {
+          let tag = lineSlots[i][j];
+          textFont(tag.fontName || currentFontName);
+          textSize(15);
+          let textW = textWidth(tag.text);
+          let padding = 14;
+          let totalW = textW + padding;
+          let h = 30;
+          
+          tag.lineX = currentX;
+          tag.lineY = ly - 33;
+          tag.lineW = totalW;
+          tag.lineH = h;
+          
+          drawSmoothPaper(currentX, ly - 33, totalW, h, tag);
+          
+          noStroke();
+          fill(15, 23, 42);
+          textSize(15);
+          textFont(tag.fontName || currentFontName);
+          text(tag.text, currentX + padding / 2, ly - 13);
+          
+          currentX += totalW + 8;
+        }
+      }
+    }
+
+    function drawSmoothPaper(x, y, w, h, tag) {
+      push();
+      let ctx = drawingContext;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 2;
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+
+      fill(255, 255, 255); 
+      stroke(210, 218, 226); 
+      strokeWeight(0.6);
+
+      beginShape();
+      vertex(x, y + tag.topLeft);
+      bezierVertex(x + w * 0.3, y + tag.topCurve1, x + w * 0.7, y + tag.topCurve2, x + w, y + tag.topRight);
+      vertex(x + w + tag.topRight, y + h + tag.bottomRight);
+      bezierVertex(x + w * 0.7, y + h + tag.bottomCurve2, x + w * 0.3, y + h + tag.bottomCurve1, x, y + h + tag.bottomLeft);
+      endShape(CLOSE);
+      pop();
+    }
+
+    function saveComposition() {
+      let compositionData = [];
+      let hasContent = false;
+
+      for (let i = 0; i < lineSlots.length; i++) {
+        let lineTags = lineSlots[i].map(tag => ({
+          text: tag.text,
+          topLeft: tag.topLeft,
+          topRight: tag.topRight,
+          bottomRight: tag.bottomRight,
+          bottomLeft: tag.bottomLeft,
+          topCurve1: tag.topCurve1,
+          topCurve2: tag.topCurve2,
+          bottomCurve1: tag.bottomCurve1,
+          bottomCurve2: tag.bottomCurve2
+        }));
+        if (lineTags.length > 0) hasContent = true;
+        compositionData.push(lineTags);
+      }
+
+      if (!hasContent) {
+        alert("Please assemble some words on the lines before saving!");
+        return;
+      }
+
+      let archives = JSON.parse(localStorage.getItem('text_archives')) || [];
+      archives.push({ composition: compositionData, fontName: currentFontName });
+      localStorage.setItem('text_archives', JSON.stringify(archives));
+      alert("Successfully saved your creation with its unique font style & paper shapes!");
+    }
+
+    function resetComposition() {
+      wordTags = [];
+      lineSlots = lineSlots.map(() => []);
+      currentLine = 0;
+    }
+
+    function addWordTag() {
+      let val = inputField.value().trim();
+      if (val !== "") {
+        wordTags.push({
+          text: val,
+          inLineIndex: -1,
+          fontName: currentFontName,
+          topLeft: random(-0.8, 0.8),
+          topRight: random(-0.8, 0.8),
+          bottomRight: random(-0.8, 0.8),
+          bottomLeft: random(-0.8, 0.8),
+          topCurve1: random(-1.2, 1.2),
+          topCurve2: random(-1.2, 1.2),
+          bottomCurve1: random(-1.2, 1.2),
+          bottomCurve2: random(-1.2, 1.2)
+        });
+        inputField.value('');
+      }
+    }
+
+    function mousePressed() {
+      for (let tag of wordTags) {
+        if (tag.inLineIndex === -1 && isHover(tag.x, tag.y, tag.w, tag.h)) {
+          tag.inLineIndex = currentLine;
+          lineSlots[currentLine].push(tag);
+          return;
+        }
+      }
+      
+      for (let i = 0; i < lineSlots.length; i++) {
+        for (let j = 0; j < lineSlots[i].length; j++) {
+          let tag = lineSlots[i][j];
+          if (isHover(tag.lineX, tag.lineY, tag.lineW, tag.lineH)) {
+            tag.inLineIndex = -1;
+            lineSlots[i].splice(j, 1);
+            return;
+          }
+        }
+      }
+      
+      let startLineY = 280;
+      for (let i = 0; i < lineSlots.length; i++) {
+        let ly = startLineY + i * 45;
+        if (mouseX >= 24 && mouseX <= width - 24 && mouseY >= ly - 30 && mouseY <= ly + 10) {
+          currentLine = i;
+          return;
+        }
+      }
+    }
+
+    function keyPressed() {
+      if (document.activeElement === inputField.elt) return;
+
+      if (keyCode === ENTER || keyCode === RETURN) {
+        currentLine++;
+        if (currentLine >= lineSlots.length) lineSlots.push([]);
+      } else if (keyCode === BACKSPACE) {
+        if (lineSlots[currentLine].length > 0) {
+          let removedTag = lineSlots[currentLine].pop();
+          removedTag.inLineIndex = -1;
+        } else if (currentLine > 0) {
+          currentLine--;
+        }
+      }
+    }
+
+    function isHover(x, y, w, h) {
+      return mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
+    }
+
+    // 网页前端切换文章与存档控制脚本
+    const switchArticleBtn = document.getElementById('switch-article-btn');
+    const viewArchivesBtn = document.getElementById('view-archives-btn');
+    const readingView = document.getElementById('reading-view');
+    const articleSelectionView = document.getElementById('article-selection-view');
+    const archiveListView = document.getElementById('archive-list-view');
+    const archiveDetailView = document.getElementById('archive-detail-view');
+    const panelTitle = document.getElementById('panel-title');
+    const articleTextElem = document.getElementById('article-text');
+    let currentView = 'reading';
+
+    let archiveP5Instance = null;
+
+    switchArticleBtn.addEventListener('click', () => {
+      if (currentView === 'article-select') {
+        showReadingView();
+      } else {
+        hideAllViews();
+        articleSelectionView.style.display = 'flex';
+        panelTitle.innerText = "Choose an Article";
+        switchArticleBtn.innerText = "Back";
+        viewArchivesBtn.innerText = "View Archives";
+        currentView = 'article-select';
+      }
+    });
+
+    viewArchivesBtn.addEventListener('click', () => {
+      if (currentView === 'archive-list' || currentView === 'archive-detail') {
+        showReadingView();
+      } else {
+        hideAllViews();
+        loadArchivesList();
+        archiveListView.style.display = 'flex';
+        panelTitle.innerText = "My Archives";
+        viewArchivesBtn.innerText = "Back";
+        switchArticleBtn.innerText = "Switch Article";
+        currentView = 'archive-list';
+      }
+    });
+
+    function hideAllViews() {
+      readingView.style.display = 'none';
+      articleSelectionView.style.display = 'none';
+      archiveListView.style.display = 'none';
+      archiveDetailView.style.display = 'none';
+      if (archiveP5Instance) {
+        archiveP5Instance.remove();
+        archiveP5Instance = null;
+      }
+    }
+
+    function showReadingView() {
+      hideAllViews();
+      readingView.style.display = 'block';
+      panelTitle.innerText = "Reading Area";
+      switchArticleBtn.innerText = "Switch Article";
+      viewArchivesBtn.innerText = "View Archives";
+      currentView = 'reading';
+    }
+
+    document.querySelectorAll('.article-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const index = parseInt(card.getAttribute('data-index'));
+        currentArticleIndex = index;
+        articleTextElem.innerText = articles[index].text;
+        articleTextElem.style.fontFamily = articles[index].cssFont;
+        panelTitle.innerText = articles[index].title;
+        if (typeof window.setArticleFont === 'function') {
+          window.setArticleFont(articles[index].p5Font);
+        }
+        showReadingView();
+      });
+    });
+
+    function loadArchivesList() {
+      archiveListView.innerHTML = '';
+      let rawArchives = JSON.parse(localStorage.getItem('text_archives')) || [];
+      if (rawArchives.length === 0) {
+        archiveListView.innerHTML = `<p style="color: #94a3b8; text-align: center; margin-top: 40px;">No archives found yet.</p>`;
+        return;
+      }
+      
+      let archives = rawArchives.map(item => {
+        if (Array.isArray(item)) {
+          return {
+            composition: item.map(line => line.map(w => ({ text: w, topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0, topCurve1: 0, topCurve2: 0, bottomCurve1: 0, bottomCurve2: 0 }))),
+            fontName: 'Special Elite'
+          };
+        }
+        return item;
+      });
+
+      archives.forEach((item, index) => {
+        let snippet = item.composition.map(line => line.map(t => typeof t === 'string' ? t : t.text).join(" ")).filter(l => l.trim() !== "").join(" / ");
+        if (!snippet) snippet = "(Empty composition)";
+        
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<p>${snippet}</p>`;
+        
+        card.addEventListener('click', () => { showArchiveDetail(item, index + 1); });
+        archiveListView.appendChild(card);
+      });
+    }
+
+    function showArchiveDetail(item, archiveNum) {
+      hideAllViews();
+      archiveDetailView.style.display = 'flex';
+      panelTitle.innerText = `Archive #${archiveNum} (Read-only)`;
+      viewArchivesBtn.innerText = "Back to List";
+
+      const container = document.getElementById('archive-canvas-container');
+      container.innerHTML = '';
+
+      archiveP5Instance = new p5((p) => {
+        p.setup = function() {
+          let cnv = p.createCanvas(container.clientWidth, 1150);
+          cnv.parent('archive-canvas-container');
+          p.noLoop();
+        };
+
+        p.draw = function() {
+          p.clear();
+          let startLineY = 280;
+
+          for (let i = 0; i < item.composition.length; i++) {
+            let ly = startLineY + i * 45; 
+            
+            p.stroke(155, 165, 178);
+            p.strokeWeight(1.0);
+            p.line(24, ly, p.width - 24, ly);
+
+            let currentX = 24;
+            let lineWords = item.composition[i];
+
+            for (let j = 0; j < lineWords.length; j++) {
+              let wordObj = lineWords[j];
+              let wordText = typeof wordObj === 'string' ? wordObj : wordObj.text;
+              
+              p.textFont(item.fontName || "Special Elite");
+              p.textSize(15);
+              let textW = p.textWidth(wordText);
+              let padding = 14;
+              let totalW = textW + padding;
+              let h = 30;
+
+              p.push();
+              let ctx = p.drawingContext;
+              ctx.shadowOffsetX = 0;
+              ctx.shadowOffsetY = 2;
+              ctx.shadowBlur = 4;
+              ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+
+              p.fill(255, 255, 255);
+              p.stroke(210, 218, 226);
+              p.strokeWeight(0.6);
+
+              let tl = wordObj.topLeft || 0;
+              let tr = wordObj.topRight || 0;
+              let br = wordObj.bottomRight || 0;
+              let bl = wordObj.bottomLeft || 0;
+              let tc1 = wordObj.topCurve1 || 0;
+              let tc2 = wordObj.topCurve2 || 0;
+              let bc1 = wordObj.bottomCurve1 || 0;
+              let bc2 = wordObj.bottomCurve2 || 0;
+
+              p.beginShape();
+              p.vertex(currentX, (ly - 33) + tl);
+              p.bezierVertex(currentX + totalW * 0.3, (ly - 33) + tc1, currentX + totalW * 0.7, (ly - 33) + tc2, currentX + totalW, (ly - 33) + tr);
+              p.vertex(currentX + totalW + tr, (ly - 33) + h + br);
+              p.bezierVertex(currentX + totalW * 0.7, (ly - 33) + h + bc2, currentX + totalW * 0.3, (ly - 33) + h + bc1, currentX, (ly - 33) + h + bl);
+              p.endShape(p.CLOSE);
+              p.pop();
+
+              p.noStroke();
+              p.fill(15, 23, 42);
+              p.textSize(15);
+              p.textFont(item.fontName || "Special Elite");
+              p.text(wordText, currentX + padding / 2, ly - 13);
+
+              currentX += totalW + 8;
+            }
+          }
+        };
+      });
+
+      currentView = 'archive-detail';
+    }
+  </script>
+</body>
+</html>
